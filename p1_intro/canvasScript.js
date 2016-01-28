@@ -12,20 +12,6 @@ window.onload = function() {
 };
 
 /*
-function drawBackCircle(context){
-	var radius = 100;
-	var x = 0;
-	var y = 0;
-
-	context.beginPath();
-	context.lineWidth=10;
-	context.arc(x, y, radius, 0, 2*Math.PI);
-	context.strokeStyle='#000000';
-	context.stroke();
-}
-*/
-
-/*
  * draw a cylinder with red and green lines connecting the circles
  */
 function drawPicture(context, angle, canvas){
