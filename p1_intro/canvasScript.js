@@ -22,21 +22,22 @@ function drawPicture(context, angle, canvas){
 	var yLen = 50;
 	var radians = toRads(angle);
 
+	//Pulled this redraw code from:
+	//http://stackoverflow.com/questions/2142535/how-to-clear-the-canvas-for-redrawing
 	context.save();
-
 	context.setTransform(1, 0, 0, 1, 0, 0);
 	context.beginPath();
 	context.clearRect(0, 0, canvas.width, canvas.height);
-
 	context.restore();
 
 	//draw back circle
 	context.beginPath();
 	context.lineWidth=10;
 	context.arc(x, y, radius, 0, 2*Math.PI);
-	context.fillStyle='#6e6e6e';
+	//context.fillStyle='#6e6e6e';
+	context.fillStyle='rgb(110, 110, 110)'
 	context.fill();
-	context.strokeStyle='#00000';
+	context.strokeStyle='rgb(0, 0, 0)';
 	context.stroke();
 
 	//draw red line
@@ -52,7 +53,7 @@ function drawPicture(context, angle, canvas){
 	x += xLen;
 	y += yLen;
 	context.lineTo(x, y);
-	context.strokeStyle='#ff0000';
+	context.strokeStyle='rgb(255, 0, 0)';
 	context.stroke();
 
 	//Draw Green Line opposite of red line
@@ -64,7 +65,7 @@ function drawPicture(context, angle, canvas){
 	x -= xLen;
 	y -= yLen;
 	context.lineTo(x, y);
-	context.strokeStyle='#00ff00';
+	context.strokeStyle='rgb(0, 255, 0)';
 	context.stroke();
 
 	//Draw front circle
@@ -74,10 +75,11 @@ function drawPicture(context, angle, canvas){
 	context.lineWidth=10;
 	context.beginPath();
 	context.arc(x, y, radius, 0, 2*Math.PI);
-	context.strokeStyle='#000000';
+	context.fillStyle='rgba(110, 110, 110, 0.4';
+	context.fill();
+	context.strokeStyle='rgb(0, 0, 0)';
 	context.stroke();
-	//context.fillStyle='#000000';
-	//context.fill();
+
 
 	angle += 2;
 	if(angle > 360) angle %= 360;
