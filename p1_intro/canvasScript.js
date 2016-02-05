@@ -83,7 +83,7 @@ function drawPicture(context, angle, canvas){
 
 	angle += 2;
 	if(angle > 360) angle %= 360;
-	setTimeout(drawPicture, 50, context, angle, canvas);
+	setTimeout(drawPicture, 35, context, angle, canvas);
 }
 
 //y = rcos(t)
