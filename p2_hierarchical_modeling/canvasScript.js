@@ -2,7 +2,9 @@ window.onload = function() {
 	var canvas = document.getElementById('myCanvas');
 	var context = canvas.getContext('2d');
 
-	drawPicture(context);
+	ball = new Ball(0, 0, 6, 'rgb(0, 220, 220)');
+
+	drawPicture(context, canvas, -30, -25, 30, -15, 3, -35, 29.5, ball, 0);
 };
 
 
@@ -27,45 +29,64 @@ function Table(w, h, col){
 	this.color = col;
 }
 
-function Head(x, y, r){
-	this.x = x;
-	this.y = y;
+function Head(r){
 	this.r = r;
 }
 
-function Person(x, y){
-	this.head = new Head(x, y, 20);
+function Ball(x, y, r, color){
+	this.x = x;
+	this.y = y;
+	this.r = r;
+	this.color = color;
+}
+
+/*
+* theta0 rotate left upper arm
+* theta1 rotate left lower arm
+*/
+function Person(theta0, theta1){
+	this.head = new Head(20);
+	this.body = new Limb(5, 100, 'rgb(0, 0, 0');
+	this.lLeg = new Limb(5, 70, 'rgb(0, 0, 0)', 20);
+	this.rLeg = new Limb(5, 70, 'rgb(0, 0, 0)', -20);
+	this.luArm = new Limb(5, 30, 'rgb(255, 0, 0)', theta0);
+	this.lfArm = new Limb(5, 25, 'rgb(255, 0, 0)', theta1);
+	this.rArm = new Limb(5, 53, 'rgb(0, 0, 0)', -20);
+
+}
+
+function drawBall(ball, context){
+	context.beginPath();
+	context.arc(0, 0, ball.r, 0, 2*Math.PI);
+	context.fillStyle = ball.color;
+	context.fill();
 }
 
 function drawTable(table, context){
-
 	context.beginPath()
 	context.rect(0, 0, table.width, table.height);
 	context.fillStyle = table.color;
 	context.fill();
-
 }
 
 function drawLimb(leg, context){
-	
 	context.beginPath();
 	context.rect(0, 0, leg.width, leg.height);
 	context.fillStyle = leg.color;
 	context.fill();
-
 }
 
-function drawPicture(context){
+function drawFullPingPongTable(context){
 	pptable = new Table(400, 20, 'rgb(25, 25, 25)');
 	leg1 = new Limb(10, 100, 'rgb(0, 0, 0)');
 	leg2 = new Limb(10, 100, 'rgb(0, 0, 0)');
 	net = new Limb(8, 17, 'rgba(25, 25, 25, 0.4)')
 
 
-	context.save();
+	context.save(); //origin save
 	context.translate(250, 400);
 	drawTable(pptable, context);
-	context.save();
+	context.save(); //table nw save
 	
 	context.translate(0, pptable.height);
 	drawLimb(leg1, context);
@@ -73,7 +94,122 @@ function drawPicture(context){
 	context.translate(pptable.width - leg1.width, 0);
 	drawLimb(leg2, context);
 
-	context.restore();
+	context.restore(); //table nw ret
 	context.translate((pptable.width/2 - net.width/2), -net.height);
 	drawLimb(net, context);
+
+	context.restore(); //origin ret
+
+}
+
+function drawLeftPerson(context, luTheta, lfTheta){
+	person = new Person(luTheta, lfTheta);
+	
+	//draw the head
+	context.save(); //origin save
+	context.translate(125, 325);
+	context.beginPath();
+	context.arc(0, 0, person.head.r, 0, 2*Math.PI);
+	context.lineWidth=5;
+	context.stroke();
+
+	//draw body
+	context.translate(0, person.head.r);
+	drawLimb(person.body, context);
+
+	//draw right 
+	context.translate(0, person.head.r);
+	context.save();//save chest
+
+	context.rotate(a2r(person.rArm.theta));
+	drawLimb(person.rArm, context);
+
+	context.restore(); //chest ret
+	context.save(); //save chest
+	context.rotate(a2r(person.luArm.theta));
+	drawLimb(person.luArm, context);
+
+	context.translate(0, person.luArm.height);
+	context.rotate(a2r(person.lfArm.theta));
+	drawLimb(person.lfArm, context);
+
+	context.restore(); //restore chest
+	context.translate(0, person.body.height - person.head.r);
+	context.save(); //save pelvis
+
+	context.rotate(a2r(person.rLeg.theta));
+	drawLimb(person.rLeg, context);
+	context.restore(); //restore pelvis
+	
+	context.rotate(a2r(person.lLeg.theta));
+	drawLimb(person.lLeg, context);
+	context.restore();
+}
+
+function drawPicture(context, canvas, p1Upper, p1Fore, p2Upper, p2Fore, angleVel, y0vel, xVel, ball, timer){
+	//clear board then redraw for animation
+	context.save();
+	context.setTransform(1, 0, 0, 1, 0, 0);
+	context.beginPath();
+	context.clearRect(0, 0, canvas.width, canvas.height);
+	context.restore();
+
+	ball.y = y0vel * timer  + (4.9*timer*timer);
+
+	if(ball.y + ball.r > 7 ){
+		timer = 0;
+		if((xVel > 0 && ball.x > (250 - 165) + 200) || (xVel < 0 && ball.x < (250 - 165) + 200)){
+			y0vel = -22;
+			xVel *= .8;
+			ball.y = y0vel * timer  + (4.9*timer*timer);
+		} else ball.y = 0;
+		//ball.y = 0;
+		//timer = 0;
+	}
+	if(/*p1Upper > 30 || p2Upper > 30*/ball.x < 0 || ball.x > ((250-165)*2 + 400) ) {
+		ball.x -= xVel;
+		angleVel *= -1;
+		timer = 0;
+		y0vel = -35;
+		xVel = 29.5;
+		if(angleVel < 0){
+			xVel *= -1;
+		}
+	}
+
+	
+/*
+	if(ball.x > (canvas.width - 165)) {
+		angleVel *= -1;
+		ball.x -= xVel;
+	}
+*/
+	
+	//ball = new Ball(0, 0, 6, 'rgb(0, 220, 220)');
+	//-30.20
+	//-25.-15
+	drawFullPingPongTable(context);
+	drawLeftPerson(context, p1Upper, p1Fore);
+
+	context.save(); //save origin
+	
+	context.translate(canvas.width,0);
+	context.scale(-1, 1);
+	drawLeftPerson(context, p2Upper, p2Fore);
+	context.restore(); //origin ret
+
+	context.save();//save origin
+	context.translate(165, 395);
+	context.translate(ball.x, ball.y);
+	drawBall(ball, context);
+	context.restore();//origin ret
+	
+	ball.x += xVel;
+
+	setTimeout(drawPicture, 40, context, canvas, p1Upper + angleVel, p1Fore + (angleVel/2),
+			p2Upper - angleVel, p2Fore -(angleVel/2), angleVel, y0vel, xVel, ball, timer + 1);
+}
+
+function a2r(angle){
+	return angle * (Math.PI/180);
 }
