@@ -2,9 +2,15 @@ window.onload = function() {
 	var canvas = document.getElementById('myCanvas');
 	var context = canvas.getContext('2d');
 
-	ball = new Ball(0, 0, 6, -35, 29.5, 'rgb(0, 220, 220)');
+	pptable = new Table(400, 20, 'rgb(25, 25, 25)');
+	leg1 = new Limb(10, 100, 'rgb(0, 0, 0)');
+	leg2 = new Limb(10, 100, 'rgb(0, 0, 0)');
+	net = new Limb(8, 17, 'rgba(25, 25, 25, 0.4)')
 
-	drawPicture(context, canvas, -30, -25, 30, -15, 3, ball, 0);
+	pptable = new PingPongTable(pptable, leg1, leg2, net);
+	ball = new Ball(0, 0, 6, 29.5, -35, 'rgb(0, 220, 220)');
+
+	drawPicture(context, canvas, -30, -25, 30, -15, 3, pptable, ball, 0);
 };
 
 function Limb(w, h, col){
@@ -55,6 +61,13 @@ function Person(theta0, theta1){
 
 }
 
+function PingPongTable(table, leg1, leg2, net){
+	this.table = table;
+	this.leg1 = leg1;
+	this.leg2 = leg2;
+	this.net = net;
+}
+
 function drawBall(ball, context){
 	context.beginPath();
 	context.arc(0, 0, ball.r, 0, 2*Math.PI);
@@ -76,27 +89,24 @@ function drawLimb(leg, context){
 	context.fill();
 }
 
-function drawFullPingPongTable(context){
-	pptable = new Table(400, 20, 'rgb(25, 25, 25)');
-	leg1 = new Limb(10, 100, 'rgb(0, 0, 0)');
-	leg2 = new Limb(10, 100, 'rgb(0, 0, 0)');
-	net = new Limb(8, 17, 'rgba(25, 25, 25, 0.4)')
+function drawFullPingPongTable(pptable, context){
+	
 
 
 	context.save(); //origin save
 	context.translate(250, 400);
-	drawTable(pptable, context);
+	drawTable(pptable.table, context);
 	context.save(); //table nw save
 	
-	context.translate(0, pptable.height);
-	drawLimb(leg1, context);
+	context.translate(0, pptable.table.height);
+	drawLimb(pptable.leg1, context);
 
-	context.translate(pptable.width - leg1.width, 0);
-	drawLimb(leg2, context);
+	context.translate(pptable.table.width - pptable.leg1.width, 0);
+	drawLimb(pptable.leg2, context);
 
 	context.restore(); //table nw ret
-	context.translate((pptable.width/2 - net.width/2), -net.height);
-	drawLimb(net, context);
+	context.translate((pptable.table.width/2 - pptable.net.width/2), -pptable.net.height);
+	drawLimb(pptable.net, context);
 
 	context.restore(); //origin ret
 
@@ -146,7 +156,7 @@ function drawLeftPerson(context, luTheta, lfTheta){
 	context.restore();
 }
 
-function drawPicture(context, canvas, p1Upper, p1Fore, p2Upper, p2Fore, angleVel, ball, timer){
+function drawPicture(context, canvas, p1Upper, p1Fore, p2Upper, p2Fore, angleVel, pptable, ball, timer){
 	//clear board then redraw for animation
 	context.save();
 	context.setTransform(1, 0, 0, 1, 0, 0);
@@ -156,9 +166,10 @@ function drawPicture(context, canvas, p1Upper, p1Fore, p2Upper, p2Fore, angleVel
 
 	ball.y = ball.y0Vel * timer  + (4.9*timer*timer);
 
-	if(ball.y + ball.r > 7 ){
+	//If the ball hits the table 
+	if(ball.y + ball.r > 7 /*&& (ball.x > (250 -165) && ball.x < (250-165 + 400))*/){
 		timer = 0;
-		if((ball.xVel > 0 && ball.x > (250 - 165) + 200) || (ball.xVel < 0 && ball.x < (250 - 165) + 200)){
+		if((ball.xVel > 0 && ball.x > (250 - 165) + pptable.table.width/2) || (ball.xVel < 0 && ball.x < (250 - 165) + pptable.table.width/2)){ //halfway across table
 			ball.y0Vel = -22;
 			ball.xVel *= .8;
 			ball.y = ball.y0Vel * timer  + (4.9*timer*timer);
@@ -166,7 +177,9 @@ function drawPicture(context, canvas, p1Upper, p1Fore, p2Upper, p2Fore, angleVel
 		//ball.y = 0;
 		//timer = 0;
 	}
-	if(/*p1Upper > 30 || p2Upper > 30*/ball.x < 0 || ball.x > ((250-165)*2 + 400) ) {
+
+	//if the ball reaches either player
+	if(ball.x < 0 || ball.x > ((250-165)*2 + pptable.table.width) ) {
 		ball.x -= ball.xVel;
 		angleVel *= -1;
 		timer = 0;
@@ -180,7 +193,7 @@ function drawPicture(context, canvas, p1Upper, p1Fore, p2Upper, p2Fore, angleVel
 	
 	//-30.20
 	//-25.-15
-	drawFullPingPongTable(context);
+	drawFullPingPongTable(pptable, context);
 	drawLeftPerson(context, p1Upper, p1Fore);
 
 	context.save(); //save origin
@@ -199,7 +212,7 @@ function drawPicture(context, canvas, p1Upper, p1Fore, p2Upper, p2Fore, angleVel
 	ball.x += ball.xVel;
 
 	setTimeout(drawPicture, 40, context, canvas, p1Upper + angleVel, p1Fore + (angleVel/2),
-			p2Upper - angleVel, p2Fore -(angleVel/2), angleVel, ball, timer + 1);
+			p2Upper - angleVel, p2Fore -(angleVel/2), angleVel, pptable, ball, timer + 1);
 }
 
 function a2r(angle){
