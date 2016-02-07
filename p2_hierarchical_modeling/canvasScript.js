@@ -29,8 +29,7 @@ window.onload = function() {
 
 	pptable = new PingPongTable(pptable, leg1, leg2, net);
 	ball = new Ball(0, 0, 6, _BALL_X_VEL, _BALL_Y_VEL, 'rgb(0, 220, 220)');
-
-	person1 = new Person(_P1_BICEP_ANGLE, _P1_FOREARM_ANGLE);
+person1 = new Person(_P1_BICEP_ANGLE, _P1_FOREARM_ANGLE);
 	person2 = new Person(_P2_BICEP_ANGLE, _P2_FOREARM_ANGLE);
 
 	
@@ -158,14 +157,20 @@ function drawPerson(context, person){
 	context.translate(0, person.head.r);
 	context.save();//save chest
 
+	/*
+	 * This is the piece where the Person objects Upper Arm (luArm) & Forearm (lfArm)
+	 * rotate relative to each other
+	 */
 	context.rotate(a2r(person.rArm.theta));
 	drawLimb(person.rArm, context);
 
+	//Upper Arm
 	context.restore(); //chest ret
 	context.save(); //save chest
 	context.rotate(a2r(person.luArm.theta));
 	drawLimb(person.luArm, context);
 
+	//Forearm
 	context.translate(0, person.luArm.height);
 	context.rotate(a2r(person.lfArm.theta));
 	drawLimb(person.lfArm, context);
@@ -234,6 +239,7 @@ function drawPicture(context, canvas, person1, person2, angleVel, pptable, ball,
 	context.restore();//origin ret
 	
 	ball.x += ball.xVel;
+	//Rotate upper arm at angleVel, rotate the forearm at only half of angleVel
 	person1.luArm.theta += angleVel;
 	person1.lfArm.theta += (angleVel*.5);
 	person2.luArm.theta -= angleVel;
