@@ -22,21 +22,28 @@ window.onload = function() {
 	var canvas = document.getElementById('myCanvas');
 	var context = canvas.getContext('2d');
 
+	//Pieces for the table
 	pptable = new Table(400, 20, 'rgb(25, 25, 25)');
 	leg1 = new Limb(10, 100, 'rgb(0, 0, 0)');
 	leg2 = new Limb(10, 100, 'rgb(0, 0, 0)');
-	net = new Limb(8, 17, 'rgba(25, 25, 25, 0.4)')
+	net = new Limb(8, 17, 'rgba(25, 25, 25, 0.4)');
 
+	//Ping Pong Table
 	pptable = new PingPongTable(pptable, leg1, leg2, net);
 	ball = new Ball(0, 0, 6, _BALL_X_VEL, _BALL_Y_VEL, 'rgb(0, 220, 220)');
-person1 = new Person(_P1_BICEP_ANGLE, _P1_FOREARM_ANGLE);
+
+	//2 Players on either side of the table, with initial values for their hitting hand
+	person1 = new Person(_P1_BICEP_ANGLE, _P1_FOREARM_ANGLE);
 	person2 = new Person(_P2_BICEP_ANGLE, _P2_FOREARM_ANGLE);
 
 	
 
-	//drawPicture(context, canvas, -30, -25, 30, -15, 3, pptable, ball, 0);
 	drawPicture(context, canvas, person1, person2, _ANGLE_VEL, pptable, ball, 0);
 };
+
+/*
+ * ################## CLASSES #########################
+ */
 
 function Limb(w, h, col){
 	this.width = w;
@@ -93,6 +100,10 @@ function PingPongTable(table, leg1, leg2, net){
 	this.net = net;
 }
 
+/*
+ * ################## DRAW FUNCTIONS #########################
+ */
+
 function drawBall(ball, context){
 	context.beginPath();
 	context.arc(0, 0, ball.r, 0, 2*Math.PI);
@@ -119,20 +130,25 @@ function drawFullPingPongTable(pptable, context){
 
 
 	context.save(); //origin save
+	//table translated to top left of table (where table is drawn)
 	context.translate(_TABLE_X, _TABLE_Y);
 	drawTable(pptable.table, context);
 	context.save(); //table nw save
 	
+	//Draw left table leg, translate to bottom left of table
 	context.translate(0, pptable.table.height);
 	drawLimb(pptable.leg1, context);
 
+	//Draw right table leg, translate to bottom right of table (minus leg width)
 	context.translate(pptable.table.width - pptable.leg1.width, 0);
 	drawLimb(pptable.leg2, context);
 
+	//draw net
 	context.restore(); //table nw ret
 	context.translate((pptable.table.width/2 - pptable.net.width/2), -pptable.net.height);
 	drawLimb(pptable.net, context);
 
+	//restore to canvas origin
 	context.restore(); //origin ret
 
 }
@@ -153,7 +169,7 @@ function drawPerson(context, person){
 	context.translate(0, person.head.r);
 	drawLimb(person.body, context);
 
-	//draw right 
+	//draw right arm
 	context.translate(0, person.head.r);
 	context.save();//save chest
 
@@ -196,37 +212,42 @@ function drawPicture(context, canvas, person1, person2, angleVel, pptable, ball,
 	context.clearRect(0, 0, canvas.width, canvas.height);
 	context.restore();
 
+	//calculate y velocity
 	ball.y = ball.y0Vel * timer  + (4.9*timer*timer);
 
 	//If the ball hits the table 
 	if(ball.y + ball.r > 7 /*&& (ball.x > (250 -165) && ball.x < (250-165 + 400))*/){
-		timer = 0;
-		if((ball.xVel > 0 && ball.x > (_TABLE_X - _BALL_X) + pptable.table.width/2) || (ball.xVel < 0 && ball.x < (_TABLE_X - _BALL_X) + pptable.table.width/2)){ //halfway across table
-			ball.y0Vel = _BALL_Y_VEL_SUB;
-			ball.xVel *= _BALL_X_VEL_MODIFIER;
+		timer = 0; //reset timer for y vel
+		if((ball.xVel > 0 && ball.x > (_TABLE_X - _BALL_X) + pptable.table.width/2) || 
+				(ball.xVel < 0 && ball.x < (_TABLE_X - _BALL_X) + pptable.table.width/2)){ //halfway across table
+			ball.y0Vel = _BALL_Y_VEL_SUB;//smaller bounce 
+			ball.xVel *= _BALL_X_VEL_MODIFIER; //slow down
 			ball.y = ball.y0Vel * timer  + (4.9*timer*timer);
 		} else ball.y = 0;
-		//ball.y = 0;
-		//timer = 0;
 	}
 
 	//if the ball reaches either player
 	if(ball.x < 0 || ball.x > ((_TABLE_X-_BALL_X)*2 + pptable.table.width) ) {
-		ball.x -= ball.xVel;
-		angleVel *= -1;
+		ball.x -= ball.xVel; //undo x movement past artificial bounds
+		angleVel *= -1; //reverse direction
 		timer = 0;
-		ball.y0Vel = _BALL_Y_VEL;
-		ball.xVel = _BALL_X_VEL;
+		ball.y0Vel = _BALL_Y_VEL; //back to init y
+		ball.xVel = _BALL_X_VEL; //back to init x
 		if(angleVel < 0){
-			ball.xVel *= -1;
+			ball.xVel *= -1; 
 		}
 	}
 
+	//draw table
 	drawFullPingPongTable(pptable, context);
+
+	//draw person left of table
 	drawPerson(context, person1);
 
 	context.save(); //save origin
 	
+	//draw person on right of table by translating to other side of canvas (width across)
+	//then scale x*-1 to mirror the image
 	context.translate(canvas.width,0);
 	context.scale(-1, 1);
 	drawPerson(context, person2);
