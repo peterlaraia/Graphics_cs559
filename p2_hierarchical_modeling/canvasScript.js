@@ -15,6 +15,8 @@ const _BALL_X_VEL_MODIFIER = .8;
 const _BALL_Y_VEL = -35;
 const _BALL_Y_VEL_SUB = -22;
 
+const _ANGLE_VEL = 3;
+
 
 window.onload = function() {
 	var canvas = document.getElementById('myCanvas');
@@ -34,7 +36,7 @@ window.onload = function() {
 	
 
 	//drawPicture(context, canvas, -30, -25, 30, -15, 3, pptable, ball, 0);
-	drawPicture(context, canvas, person1, person2, 3, pptable, ball, 0);
+	drawPicture(context, canvas, person1, person2, _ANGLE_VEL, pptable, ball, 0);
 };
 
 function Limb(w, h, col){
