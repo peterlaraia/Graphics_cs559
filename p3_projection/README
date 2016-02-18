@@ -1,0 +1,2 @@
+projection of a 3d world to 2d canvas.
+Model->World->Camera>> Orthographic/Perspective Projection >> Viewport transformations
