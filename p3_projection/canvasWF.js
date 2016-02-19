@@ -7,6 +7,9 @@ function setup() { "use strict";
   sliderX.value = 0;
   var sliderY = document.getElementById('vertical');
   sliderY.value = 0;
+  var perspToggle = document.getElementById('projToggle');
+  var zoom = document.getElementById('zoom');
+  zoom.value = (zoom.max - zoom.min)/2;
   
   
   function moveToTx(vtx,Tx) {
@@ -115,7 +118,17 @@ function setup() { "use strict";
     var Tc = m4.inverse(m4.lookAt(eye, target, up));
     
     //projection transformation
-    var Tp = m4.ortho(-100, 100, -100, 100, -2, 2);
+    //var Tp = m4.ortho(-100, 100, -100, 100, -2, 2);
+    //var Tp = m4.perspective(Math.PI/2, 1, 100, 900);
+    var Tp;
+    if(perspToggle.checked){
+    	var divideBy = zoom.value/100;
+    	Tp = m4.perspective(Math.PI/divideBy, 1, 100, 900);
+    } else {
+    	var inv = (zoom.max - (zoom.value - zoom.min));
+    	var half = inv/2;
+    	Tp = m4.ortho(-1*half, half, -1*half, half, -2, 2);
+    }
     
     //setup viewport transformation
     var scale = m4.scaling([100, -100, 100]);
@@ -135,6 +148,8 @@ function setup() { "use strict";
 
   sliderX.addEventListener("input",draw);
   sliderY.addEventListener("input",draw);
+  zoom.addEventListener("input", draw);
+  perspToggle.addEventListener("CheckboxStateChange", draw);
   draw();
 
 }
