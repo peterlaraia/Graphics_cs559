@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>P4 laraia</title>
+<script src="http://graphics.cs.wisc.edu/JS/twgl-full.min.js"></script>
+<style>
+
+html, body {
+	height: 100%;
+	width: 100%;
+}
+
+#uxcontainer {
+	float: left;
+	height: 90vh;
+	width: 20vw;
+}
+
+input[type="range"] {
+	width: 300;
+}
+
+.horizontal {
+	float: left;
+	height: 30vh;
+	width: 20vw;
+}
+
+.vertical {
+	float: left;
+	clear: both;
+	height: 60vh;
+	width: 20vw;
+}
+
+.optionV>.uxlabel {
+	display: inline-block;
+	vertical-align: middle;
+	line-height: normal;
+}
+
+.optionV {
+	height: 60vh;
+	width: 10vw;
+	display: table-cell;
+	text-align: center;
+}
+
+.buffer {
+	height: 50vh;
+}
+
+.buffer>input[type="range"] {
+	margin-top: 15vh;
+	transform: rotate(270deg);
+}
+
+</style>
+</head>
+
+<body>
+	<div id="fullcontainer">
+
+		<div id="uxcontainer">
+			<div class="options horizontal">
+				<span class="uxlabel">Toggle Perspective</span> <input
+					id="projToggle" type="checkbox" /><br> <span class="uxlabel">Left-Right</span>
+				<input id="leftright" type="range" min="-100" max="100" /><br>
+			</div>
+			<div class="options vertical">
+				<div class="optionV">
+					<span class="uxlabel">Up-Down</span><br>
+					<div class="buffer">
+					<input id="updown" type="range" min="-49" max="49" />
+					</div>
+
+				</div>
+				<div class="optionV">
+					<span class="uxlabel">Zoom</span><br>
+					<div class="buffer">
+					<input id="zoom" type="range" min="200" max="600" />
+					</div>
+
+				</div>
+			</div>
+		</div>
+
+		<div id="canvascontainer">
+			<canvas id="myCanvas" width="500" height="500"
+				style="border: 1px solid;">
+				Canvas Not Supported by this Browser
+			</canvas>
+
+		</div>
+		<!-- <div id="buffer"></div> -->
+	</div>
+</body>
+<script src="canvasPainterAlg.js" type="text/javascript"></script>
+</html>

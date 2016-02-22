@@ -1,0 +1,4 @@
+projection of a 3d world to 2d canvas.
+draw using triangles & fill
+shade by finding normal of triangles
+use painters algorithm to handle back to front drawing
