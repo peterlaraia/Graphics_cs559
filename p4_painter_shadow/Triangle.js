@@ -18,6 +18,7 @@ Triangle.prototype.draw = function(context) {
 	context.beginPath();
 	context.moveTo(this.v1[0], this.v1[1]); context.lineTo(this.v2[0], this.v2[1]); context.lineTo(this.v3[0], this.v3[1]);
 	context.lineTo(this.v1[0], this.v1[1]);
-	context.closePath();
+	/*context.closePath();
+	context.fill();*/
 	context.stroke();
 }

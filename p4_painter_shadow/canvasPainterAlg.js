@@ -14,73 +14,45 @@ var perspToggle = document.getElementById('projToggle');
 var zoom = document.getElementById('zoom');
 zoom.value = (zoom.max/2 + zoom.min/2);
 
-function moveToTx(vtx,Tx) {
-	if(vtx.length == 3){
-		var locTx = m4.transformPoint(Tx,vtx);
-		context.moveTo(locTx[0],locTx[1]);
-	}
-
-}
-
-function lineToTx(vtx,Tx) {
-	if(vtx.length == 3){
-		var locTx = m4.transformPoint(Tx,vtx);
-		context.lineTo(locTx[0],locTx[1]);
-	}
-
-}
-
-/**
- * draw a set of axis indicating origin & base vectors of world
- */
-function drawAxes(Tx) {
-	// A little cross on the front face, for identification
-	var red = 'rgb(255, 0, 0)';
-	var green = 'rgb(0, 255, 0)';
-	var blue = 'rgb(0, 0, 255)';
-	var origin = [0, 0, 0];
-	var xAxis = [100, 0, 0];
-	var yAxis = [0, 100, 0];
-	var zAxis = [0, 0, 100];
-
-	//context.save();
-	context.beginPath();
-	moveToTx(origin,Tx);lineToTx(xAxis,Tx);context.strokeStyle=red;context.stroke(); context.closePath();
-	context.beginPath();
-	moveToTx(origin,Tx);lineToTx(yAxis,Tx);context.strokeStyle=green;context.stroke(); context.closePath();
-	context.beginPath();
-	moveToTx(origin,Tx);lineToTx(zAxis,Tx);context.strokeStyle=blue;context.stroke(); context.closePath();
-	//context.restore();
-}
 
 /**
  * draw a pyramid with base square having width == 100, height of 100, and closest corner to origin is 
  * 100, 100, 100
  */
-function drawPyramid(xCol, Tx) {
-	//context.save();
-	context.strokeStyle = xCol;
+function setupPyramid() {
 
 	var corner1 = [-50, -50, -50];
 	var corner2 = [50, -50, -50];
 	var corner3 = [50, -50, 50];
 	var corner4 = [-50, -50, 50];
 	var peak    = [0, 150, 0];
-
+	var tri = [];
 	//draw base
-	drawTriangle(corner1, corner2, corner3, Tx);
-	drawTriangle(corner1, corner4, corner3, Tx);
+	tri.push(new Triangle(corner1, corner2, corner3));
+	tri.push(new Triangle(corner1, corner4, corner3));
 
 	//draw lines to top
-	drawTriangle(corner1, corner2, peak, Tx);
-	drawTriangle(corner2, corner3, peak, Tx);
-	drawTriangle(corner3, corner4, peak, Tx);
-	drawTriangle(corner4, corner1, peak, Tx);
+	tri.push(new Triangle(corner1, corner2, peak));
+	tri.push(new Triangle(corner2, corner3, peak));
+	tri.push(new Triangle(corner3, corner4, peak));
+	tri.push(new Triangle(corner4, corner1, peak));
 
+	return tri;
 	//context.restore();
 }
 
-function drawFullFish(Tx){
+function getTxPyramid(Tx){
+	var pyr = setupPyramid();
+	var txPyr = [];
+	for(var i = 0; i < pyr.length; i++){
+		txPyr.push(new Triangle(m4.transformPoint(Tx, pyr[i].v1),
+				m4.transformPoint(Tx, pyr[i].v2),
+				m4.transformPoint(Tx, pyr[i].v3)));
+	}
+	return txPyr;
+}
+
+function getFullFish(Tx){
 
 	var mirrorY = [1, -1, 1];
 	var mirrorZ = [1, 1, -1];
@@ -93,13 +65,11 @@ function drawFullFish(Tx){
 	var Tmf3 = m4.multiply(Tfishtopm, Tx);
 	var Tmf4 = m4.multiply(Tfishbotm, Tx);
 
-	drawFishQuarter(Tx);
-	drawFishQuarter(Tmf2);
-	drawFishQuarter(Tmf3);
-	drawFishQuarter(Tmf4);
+	var fish = txFishQuarter(Tx).concat(txFishQuarter(Tmf2), txFishQuarter(Tmf3), txFishQuarter(Tmf4));
+	return fish;
 }
 
-function setupFish(){
+function setupFishQuarter(){
 	var fullWidth = 50;
 
 	var v1 = [0, 0, fullWidth];
@@ -161,13 +131,9 @@ function setupFish(){
 
 	v3 = [-430, 0, 0];
 	fishTriangles.push(new Triangle(v1, v2, v3));
-
-	/*for(var i = 0; i < fishTriangles.length; i++){
-		fishTriangles[i].toString();
-	}*/
 }
 
-function drawFishQuarter(Tx){
+function txFishQuarter(Tx){
 	//transform points
 	var txPoints = [];
 	for(var i = 0; i < fishTriangles.length; i++){
@@ -178,9 +144,10 @@ function drawFishQuarter(Tx){
 		));
 	}
 
-	for(var j = 0; j < txPoints.length; j++){
+	return txPoints;
+	/*for(var j = 0; j < txPoints.length; j++){
 		txPoints[j].draw(context);
-	}
+	}*/
 }
 
 
@@ -245,9 +212,12 @@ function draw() {
 
 	var Tmcpv = m4.multiply(Tspin, Tcpv);
 
-	drawAxes(Tcpv);
+	//drawAxes(Tcpv);
 	//drawPyramid('rgb(0, 0, 0', Tcpv);
-	drawFullFish(Tmcpv);
+	var pyr = getTxPyramid(Tcpv);
+	var fish = getFullFish(Tmcpv);
+	var models = new ModelPieces(fish.concat(pyr));
+	models.drawPainter(context);
 	//drawPyramid('rgb(0, 0, 0', Tmp2);
 	spinBy = (spinBy + 1) % 200;
 	//console.log(spinBy);
@@ -259,7 +229,7 @@ function draw() {
   zoom.addEventListener("input", draw);
   perspToggle.addEventListener("CheckboxStateChange", draw);*/
 //draw();
-setupFish();
+setupFishQuarter();
 window.requestAnimationFrame(draw);
 
 };
