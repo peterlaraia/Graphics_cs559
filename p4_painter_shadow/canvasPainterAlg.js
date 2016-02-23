@@ -80,7 +80,7 @@ function setup() { "use strict";
   
   function drawFishQuarter(Tx){
 	    //fishtail
-	  	var fullWidth = 10;
+	  	var fullWidth = 30;
 	  
 	    var v1 = [0, 0, fullWidth];
 	    var v2 = [280, 0, 0];
@@ -160,15 +160,19 @@ function setup() { "use strict";
     
     
     //model transformation for 2nd pyramid
-    var mirror = [-1, -2, -1];
-    var Tpyramid2 = m4.scaling(mirror);
+    var mirrorY = [1, -1, 1];
+    var mirrorZ = [1, 1, -1];
+    var mirrorYZ = [1, -1, -1];
+    var Tfishbot = m4.scaling(mirrorY);
+    var Tfishtopm = m4.scaling(mirrorZ);
+    var Tfishbotm = m4.scaling(mirrorYZ);
     
     //need to determine where to place the eye
     //angle X helps us turn around the target (left -> right & right -> left), 
     //angleY helps us move the eye up and down (birds eye view -> horizon view -> view from down under)
     //imagine the eye can rotate around the edge of a viewing sphere surrounding the scene with radius 300
-    var eyeZ = 300*Math.cos(angleX);
-    var baseZ = 300*Math.sin(angleX);
+    var eyeZ = 800*Math.cos(angleX);
+    var baseZ = 800*Math.sin(angleX);
     var baseR = Math.sqrt((eyeZ*eyeZ) + (baseZ*baseZ));
     
     var eyeY = baseR*Math.sin(angleY);
@@ -196,7 +200,6 @@ function setup() { "use strict";
     } else {
     	var inv = (zoom.max - (zoom.value - zoom.min));
     	var half = inv/2;
-    	half = 100;
     	Tp = m4.ortho(-1*half, half, -1*half, half, -2, 2);
     }
     
@@ -206,11 +209,16 @@ function setup() { "use strict";
     var Tv = m4.multiply(scale, trans);
     
     var Tcpv = m4.multiply(m4.multiply(Tc, Tp), Tv);
-    var Tmp2 = m4.multiply(Tpyramid2, Tcpv);
+    var Tmf2 = m4.multiply(Tfishbot, Tcpv);
+    var Tmf3 = m4.multiply(Tfishtopm, Tcpv)
+    var Tmf4 = m4.multiply(Tfishbotm, Tcpv);
     
     drawAxes(Tcpv);
     //drawPyramid('rgb(0, 0, 0', Tcpv);
     drawFishQuarter(Tcpv);
+    drawFishQuarter(Tmf2);
+    drawFishQuarter(Tmf3);
+    drawFishQuarter(Tmf4);
     //drawPyramid('rgb(0, 0, 0', Tmp2);
     
     
