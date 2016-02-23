@@ -37,9 +37,9 @@ function setup() { "use strict";
 	var green = 'rgb(0, 255, 0)';
 	var blue = 'rgb(0, 0, 255)';
 	var origin = [0, 0, 0];
-	var xAxis = [30, 0, 0];
-	var yAxis = [0, 30, 0];
-	var zAxis = [0, 0, 30];
+	var xAxis = [100, 0, 0];
+	var yAxis = [0, 100, 0];
+	var zAxis = [0, 0, 100];
 	
 	//context.save();
 	context.beginPath();
@@ -78,11 +78,78 @@ function setup() { "use strict";
 	  //context.restore();
   }
   
+  function drawFishQuarter(Tx){
+	    //fishtail
+	  	var fullWidth = 10;
+	  
+	    var v1 = [0, 0, fullWidth];
+	    var v2 = [280, 0, 0];
+	    var v3 = [0, 30, fullWidth*.6];
+	    drawTriangle(v1, v2, v3, Tx);
+	    
+	    v1 = [330, 30, 0];
+	    drawTriangle(v1, v2, v3, Tx);
+	    
+	    v2 = [90, 70, fullWidth*.3];
+	    drawTriangle(v1, v2, v3, Tx);
+	    
+	    v3 = [280, 70, 0];
+	    drawTriangle(v1, v2, v3, Tx);
+	    
+	    v1 = [110, 110, 0];
+	    drawTriangle(v1, v2, v3, Tx);
+	    
+	    v3 = [-10, 110, 0];
+	    drawTriangle(v1, v2, v3, Tx);
+	    
+	    v1 = [-110, 70, fullWidth*.3];
+	    drawTriangle(v1, v2, v3, Tx);
+	    
+	    v2 = [-150, 110, 0];
+	    drawTriangle(v1, v2, v3, Tx);
+	    
+	    v3 = [-320, 70, 0];
+	    drawTriangle(v1, v2, v3, Tx);
+	    
+	    v2 = [-290, 30, fullWidth*.6];
+	    drawTriangle(v1, v2, v3, Tx);
+	    
+	    v3 = [0, 30, fullWidth*.6];
+	    drawTriangle(v1, v2, v3, Tx);
+	    
+	    v2 = [90, 70, fullWidth*.3];
+	    drawTriangle(v1, v2, v3, Tx);
+	    
+	    v2 = [-175, 0, fullWidth]
+	    v1 = [0, 0, fullWidth];
+	    drawTriangle(v1, v2, v3, Tx);
+	    
+	    v1 = [-290, 30, fullWidth*.6];
+	    drawTriangle(v1, v2, v3, Tx);
+	    
+	    v3 = [-430, 0, 0];
+	    drawTriangle(v1, v2, v3, Tx);
+	    
+	    v2 = [-400, 50, fullWidth*.4];
+	    drawTriangle(v1, v2, v3, Tx);
+
+	    v3 = [-320, 70, 0];
+	    drawTriangle(v1, v2, v3, Tx);
+	    
+	    v1 = [-470, 110, 0];
+	    drawTriangle(v1, v2, v3, Tx);
+	    
+	    v3 = [-430, 0, 0];
+	    drawTriangle(v1, v2, v3, Tx);
+	  }
+  
   function drawTriangle(vtx1, vtx2, vtx3, Tx) {
 	  context.beginPath();
 	  moveToTx(vtx1, Tx); lineToTx(vtx2, Tx); lineToTx(vtx3, Tx); lineToTx(vtx1, Tx);
 	  context.stroke(); context.closePath();
   }
+  
+  
 
   function draw() {
     // hack to clear the canvas fast
@@ -100,8 +167,8 @@ function setup() { "use strict";
     //angle X helps us turn around the target (left -> right & right -> left), 
     //angleY helps us move the eye up and down (birds eye view -> horizon view -> view from down under)
     //imagine the eye can rotate around the edge of a viewing sphere surrounding the scene with radius 300
-    var eyeZ = 600*Math.cos(angleX);
-    var baseZ = 600*Math.sin(angleX);
+    var eyeZ = 300*Math.cos(angleX);
+    var baseZ = 300*Math.sin(angleX);
     var baseR = Math.sqrt((eyeZ*eyeZ) + (baseZ*baseZ));
     
     var eyeY = baseR*Math.sin(angleY);
@@ -129,6 +196,7 @@ function setup() { "use strict";
     } else {
     	var inv = (zoom.max - (zoom.value - zoom.min));
     	var half = inv/2;
+    	half = 100;
     	Tp = m4.ortho(-1*half, half, -1*half, half, -2, 2);
     }
     
@@ -141,7 +209,8 @@ function setup() { "use strict";
     var Tmp2 = m4.multiply(Tpyramid2, Tcpv);
     
     drawAxes(Tcpv);
-    drawPyramid('rgb(0, 0, 0', Tcpv);
+    //drawPyramid('rgb(0, 0, 0', Tcpv);
+    drawFishQuarter(Tcpv);
     //drawPyramid('rgb(0, 0, 0', Tmp2);
     
     
