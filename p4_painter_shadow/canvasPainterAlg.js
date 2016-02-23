@@ -185,6 +185,10 @@ function setup() { "use strict";
     //model transformation for 2nd pyramid
     
     
+     /*var eyeX = 800*Math.cos(angleX);
+     var eyeY = sliderY.value;
+     var eyeZ = 800*Math.sin(angleX);*/
+     
     //need to determine where to place the eye
     //angle X helps us turn around the target (left -> right & right -> left), 
     //angleY helps us move the eye up and down (birds eye view -> horizon view -> view from down under)
@@ -232,14 +236,17 @@ function setup() { "use strict";
     //drawPyramid('rgb(0, 0, 0', Tcpv);
     drawFullFish(Tmcpv);
     //drawPyramid('rgb(0, 0, 0', Tmp2);
-    
+    spinBy = (spinBy + 1) % 200;
+    //console.log(spinBy);
+    window.requestAnimationFrame(draw);
   }
 
-  sliderX.addEventListener("input",draw);
+  /*sliderX.addEventListener("input",draw);
   sliderY.addEventListener("input",draw);
   zoom.addEventListener("input", draw);
-  perspToggle.addEventListener("CheckboxStateChange", draw);
-  draw();
+  perspToggle.addEventListener("CheckboxStateChange", draw);*/
+  //draw();
+  window.requestAnimationFrame(draw);
 
-}
+};
 window.onload = setup;
