@@ -2,6 +2,8 @@ function setup() { "use strict";
   var canvas = document.getElementById('myCanvas');
   var context = canvas.getContext('2d');
   var m4 = twgl.m4;
+  var spinBy = 60;
+  var spinR = 400;
   
   var sliderX = document.getElementById('leftright');
   sliderX.value = 0;
@@ -76,6 +78,25 @@ function setup() { "use strict";
 	  drawTriangle(corner4, corner1, peak, Tx);
 	  
 	  //context.restore();
+  }
+  
+  function drawFullFish(Tx){
+	  
+	  	var mirrorY = [1, -1, 1];
+	    var mirrorZ = [1, 1, -1];
+	    var mirrorYZ = [1, -1, -1];
+	    var Tfishbot = m4.scaling(mirrorY);
+	    var Tfishtopm = m4.scaling(mirrorZ);
+	    var Tfishbotm = m4.scaling(mirrorYZ);
+	    
+	  	var Tmf2 = m4.multiply(Tfishbot, Tx);
+	    var Tmf3 = m4.multiply(Tfishtopm, Tx);
+	    var Tmf4 = m4.multiply(Tfishbotm, Tx);
+	  
+	  	drawFishQuarter(Tx);
+	    drawFishQuarter(Tmf2);
+	    drawFishQuarter(Tmf3);
+	    drawFishQuarter(Tmf4);
   }
   
   function drawFishQuarter(Tx){
@@ -157,15 +178,12 @@ function setup() { "use strict";
     
     var angleX = sliderX.value*0.01*Math.PI;
     var angleY = sliderY.value*0.01*Math.PI;
+    var angleSpin = spinBy*0.01*Math.PI;
     
+    var Tspin = m4.multiply(m4.translation([0, 0, spinR]), m4.axisRotation([0, 1, 0], angleSpin));
     
     //model transformation for 2nd pyramid
-    var mirrorY = [1, -1, 1];
-    var mirrorZ = [1, 1, -1];
-    var mirrorYZ = [1, -1, -1];
-    var Tfishbot = m4.scaling(mirrorY);
-    var Tfishtopm = m4.scaling(mirrorZ);
-    var Tfishbotm = m4.scaling(mirrorYZ);
+    
     
     //need to determine where to place the eye
     //angle X helps us turn around the target (left -> right & right -> left), 
@@ -178,9 +196,7 @@ function setup() { "use strict";
     var eyeY = baseR*Math.sin(angleY);
     var lowR = baseR*Math.cos(angleY);
     eyeZ = lowR*Math.cos(angleX);
-    var eyeX = lowR*Math.sin(angleX);
-    
-    
+    var eyeX = lowR*Math.sin(angleX); 
     
     //camera transform setup
     var eye = [eyeX, eyeY, eyeZ];
@@ -209,19 +225,13 @@ function setup() { "use strict";
     var Tv = m4.multiply(scale, trans);
     
     var Tcpv = m4.multiply(m4.multiply(Tc, Tp), Tv);
-    var Tmf2 = m4.multiply(Tfishbot, Tcpv);
-    var Tmf3 = m4.multiply(Tfishtopm, Tcpv)
-    var Tmf4 = m4.multiply(Tfishbotm, Tcpv);
+    
+    var Tmcpv = m4.multiply(Tspin, Tcpv);
     
     drawAxes(Tcpv);
     //drawPyramid('rgb(0, 0, 0', Tcpv);
-    drawFishQuarter(Tcpv);
-    drawFishQuarter(Tmf2);
-    drawFishQuarter(Tmf3);
-    drawFishQuarter(Tmf4);
+    drawFullFish(Tmcpv);
     //drawPyramid('rgb(0, 0, 0', Tmp2);
-    
-    
     
   }
 
