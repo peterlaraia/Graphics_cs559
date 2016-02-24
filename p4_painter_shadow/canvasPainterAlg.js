@@ -44,7 +44,7 @@ function setupPyramid() {
 function getTxPyramid(Tx){
 	var pyr = setupPyramid();
 	var txPyr = [];
-	var color = [105, 105, 105]
+	var color = [105, 105, 105];
 	for(var i = 0; i < pyr.length; i++){
 		txPyr.push(new Triangle(m4.transformPoint(Tx, pyr[i].v1),
 				m4.transformPoint(Tx, pyr[i].v2),
@@ -139,7 +139,7 @@ function setupFishQuarter(){
 function txFishQuarter(Tx, switchV){
 	//transform points
 	var txPoints = [];
-	var color = [0, 0, 255]
+	var color = [0, 155, 155];
 	for(var i = 0; i < fishTriangles.length; i++){
 		var tri = new Triangle(
 				m4.transformPoint(Tx, fishTriangles[i].v1),
@@ -210,7 +210,7 @@ function draw() {
 		var inv = (zoom.max - (zoom.value - zoom.min));
 		var half = inv/2;
 		//half = 300;
-		Tp = m4.ortho(-1*half, half, -1*half, half, -2, 2);
+		Tp = m4.ortho(-1*half, half, -1*half, half, -1*half, 1*half);
 	}
 
 	//setup viewport transformation
@@ -227,6 +227,7 @@ function draw() {
 	var pyr = getTxPyramid(Tcpv);
 	var fish = getFullFish(Tmcpv);
 	var light = twgl.v3.normalize([1, 3, 2]);
+	//var light = twgl.v3.normalize([1, 1, 1]);
 	//var light = [1, 3, 2];
 	//var light = m4.transformPoint(Tcpv, twgl.v3.normalize([1, 3, 2]));
 	
@@ -237,7 +238,7 @@ function draw() {
 	window.requestAnimationFrame(draw);
 }
 
-/*sliderX.addEventListener("input",draw);
+/*  sliderX.addEventListener("input",draw);
   sliderY.addEventListener("input",draw);
   zoom.addEventListener("input", draw);
   perspToggle.addEventListener("CheckboxStateChange", draw);*/
