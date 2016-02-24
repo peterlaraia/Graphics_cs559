@@ -44,10 +44,13 @@ function setupPyramid() {
 function getTxPyramid(Tx){
 	var pyr = setupPyramid();
 	var txPyr = [];
+	var color = [105, 105, 105]
 	for(var i = 0; i < pyr.length; i++){
 		txPyr.push(new Triangle(m4.transformPoint(Tx, pyr[i].v1),
 				m4.transformPoint(Tx, pyr[i].v2),
-				m4.transformPoint(Tx, pyr[i].v3)));
+				m4.transformPoint(Tx, pyr[i].v3),
+				color
+		));
 	}
 	return txPyr;
 }
@@ -65,49 +68,49 @@ function getFullFish(Tx){
 	var Tmf3 = m4.multiply(Tfishtopm, Tx);
 	var Tmf4 = m4.multiply(Tfishbotm, Tx);
 
-	var fish = txFishQuarter(Tx).concat(txFishQuarter(Tmf2), txFishQuarter(Tmf3), txFishQuarter(Tmf4));
+	var fish = txFishQuarter(Tx, false).concat(txFishQuarter(Tmf2, true), txFishQuarter(Tmf3, true), txFishQuarter(Tmf4, false));
 	return fish;
 }
 
 function setupFishQuarter(){
-	var fullWidth = 50;
+	var fullWidth = 80;
 
 	var v1 = [0, 0, fullWidth];
 	var v2 = [280, 0, 0];
 	var v3 = [0, 30, fullWidth*.6];
-	fishTriangles.push(new Triangle(v1, v2, v3));
+	fishTriangles.push(new Triangle(v3, v2, v1));
 
 	v1 = [330, 30, 0];
 	fishTriangles.push(new Triangle(v1, v2, v3));
 
-	v2 = [90, 70, fullWidth*.3];
-	fishTriangles.push(new Triangle(v1, v2, v3));
+	v2 = [90, 70, fullWidth*.5];
+	fishTriangles.push(new Triangle(v3, v2, v1));
 
 	v3 = [280, 70, 0];
 	fishTriangles.push(new Triangle(v1, v2, v3));
 
 	v1 = [110, 110, 0];
-	fishTriangles.push(new Triangle(v1, v2, v3));
+	fishTriangles.push(new Triangle(v3, v2, v1));
 
 	v3 = [-10, 110, 0];
 	fishTriangles.push(new Triangle(v1, v2, v3));
 
-	v1 = [-110, 70, fullWidth*.3];
-	fishTriangles.push(new Triangle(v1, v2, v3));
+	v1 = [-110, 70, fullWidth*.5];
+	fishTriangles.push(new Triangle(v3, v2, v1));
 
 	v2 = [-150, 110, 0];
 	fishTriangles.push(new Triangle(v1, v2, v3));
 
 	v3 = [-320, 70, 0];
-	fishTriangles.push(new Triangle(v1, v2, v3));
+	fishTriangles.push(new Triangle(v3, v2, v1));
 
 	v2 = [-290, 30, fullWidth*.6];
 	fishTriangles.push(new Triangle(v1, v2, v3));
 
 	v3 = [0, 30, fullWidth*.6];
-	fishTriangles.push(new Triangle(v1, v2, v3));
+	fishTriangles.push(new Triangle(v3, v2, v1));
 
-	v2 = [90, 70, fullWidth*.3];
+	v2 = [90, 70, fullWidth*.5];
 	fishTriangles.push(new Triangle(v1, v2, v3));
 
 	v2 = [-175, 0, fullWidth]
@@ -115,33 +118,39 @@ function setupFishQuarter(){
 	fishTriangles.push(new Triangle(v1, v2, v3));
 
 	v1 = [-290, 30, fullWidth*.6];
-	fishTriangles.push(new Triangle(v1, v2, v3));
+	fishTriangles.push(new Triangle(v3, v2, v1));
 
 	v3 = [-430, 0, 0];
 	fishTriangles.push(new Triangle(v1, v2, v3));
 
 	v2 = [-400, 50, fullWidth*.4];
-	fishTriangles.push(new Triangle(v1, v2, v3));
+	fishTriangles.push(new Triangle(v3, v2, v1));
 
 	v3 = [-320, 70, 0];
 	fishTriangles.push(new Triangle(v1, v2, v3));
 
 	v1 = [-470, 110, 0];
-	fishTriangles.push(new Triangle(v1, v2, v3));
+	fishTriangles.push(new Triangle(v3, v2, v1));
 
 	v3 = [-430, 0, 0];
 	fishTriangles.push(new Triangle(v1, v2, v3));
 }
 
-function txFishQuarter(Tx){
+function txFishQuarter(Tx, switchV){
 	//transform points
 	var txPoints = [];
+	var color = [0, 0, 255]
 	for(var i = 0; i < fishTriangles.length; i++){
-		txPoints.push(new Triangle(
+		var tri = new Triangle(
 				m4.transformPoint(Tx, fishTriangles[i].v1),
 				m4.transformPoint(Tx, fishTriangles[i].v2),
-				m4.transformPoint(Tx, fishTriangles[i].v3)
-		));
+				m4.transformPoint(Tx, fishTriangles[i].v3),
+				color
+		);
+		if(switchV){
+			tri.switchV();
+		}
+		txPoints.push(tri);
 	}
 
 	return txPoints;
@@ -200,6 +209,7 @@ function draw() {
 	} else {
 		var inv = (zoom.max - (zoom.value - zoom.min));
 		var half = inv/2;
+		//half = 300;
 		Tp = m4.ortho(-1*half, half, -1*half, half, -2, 2);
 	}
 
@@ -216,11 +226,14 @@ function draw() {
 	//drawPyramid('rgb(0, 0, 0', Tcpv);
 	var pyr = getTxPyramid(Tcpv);
 	var fish = getFullFish(Tmcpv);
-	var models = new ModelPieces(fish.concat(pyr));
+	var light = twgl.v3.normalize([1, 3, 2]);
+	//var light = [1, 3, 2];
+	//var light = m4.transformPoint(Tcpv, twgl.v3.normalize([1, 3, 2]));
+	
+	var models = new ModelPieces(fish.concat(pyr), light);
+	//var models = new ModelPieces(fish, light);
 	models.drawPainter(context);
-	//drawPyramid('rgb(0, 0, 0', Tmp2);
 	spinBy = (spinBy + 1) % 200;
-	//console.log(spinBy);
 	window.requestAnimationFrame(draw);
 }
 
