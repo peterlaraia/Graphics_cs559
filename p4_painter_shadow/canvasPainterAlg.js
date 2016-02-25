@@ -9,10 +9,10 @@ var fishTriangles = [];
 var sliderX = document.getElementById('leftright');
 sliderX.value = 0;
 var sliderY = document.getElementById('updown');
-sliderY.value = 0;
+sliderY.value = 10;
 var perspToggle = document.getElementById('projToggle');
 var zoom = document.getElementById('zoom');
-zoom.value = (zoom.max/2 + zoom.min/2);
+zoom.value = (zoom.max/2 + zoom.min/2) - 200;
 
 
 /**
@@ -21,11 +21,12 @@ zoom.value = (zoom.max/2 + zoom.min/2);
  */
 function setupPyramid() {
 
-	var corner1 = [-50, -50, -50];
-	var corner2 = [50, -50, -50];
-	var corner3 = [50, -50, 50];
-	var corner4 = [-50, -50, 50];
-	var peak    = [0, 150, 0];
+	var sz = 100;
+	var corner1 = [-sz, -sz, -sz];
+	var corner2 = [sz, -sz, -sz];
+	var corner3 = [sz, -sz, sz];
+	var corner4 = [-sz, -sz, sz];
+	var peak    = [0, 3*sz, 0];
 	var tri = [];
 	//draw base
 	tri.push(new Triangle(corner1, corner2, corner3));
