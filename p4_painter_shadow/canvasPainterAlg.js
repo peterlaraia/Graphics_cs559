@@ -41,21 +41,29 @@ function setupPyramid() {
 	//context.restore();
 }
 
-function getTxPyramid(Tx){
+function getTxPyramid(Txm, Txc){
 	var pyr = setupPyramid();
 	var txPyr = [];
 	var color = [105, 105, 105];
 	for(var i = 0; i < pyr.length; i++){
-		txPyr.push(new Triangle(m4.transformPoint(Tx, pyr[i].v1),
-				m4.transformPoint(Tx, pyr[i].v2),
-				m4.transformPoint(Tx, pyr[i].v3),
+		var tri = new Triangle(m4.transformPoint(Txm, pyr[i].v1),
+				m4.transformPoint(Txm, pyr[i].v2),
+				m4.transformPoint(Txm, pyr[i].v3),
 				color
-		));
+		);
+		tri.normal = tri.getNormal();
+		
+		tri.v1 = m4.transformPoint(Txc, tri.v1);
+		tri.v2 = m4.transformPoint(Txc, tri.v2);
+		tri.v3 = m4.transformPoint(Txc, tri.v3);
+		tri.calcCentroid();
+		
+		txPyr.push(tri);
 	}
 	return txPyr;
 }
 
-function getFullFish(Tx){
+function getFullFish(Txm, Txc){
 
 	var mirrorY = [1, -1, 1];
 	var mirrorZ = [1, 1, -1];
@@ -64,11 +72,14 @@ function getFullFish(Tx){
 	var Tfishtopm = m4.scaling(mirrorZ);
 	var Tfishbotm = m4.scaling(mirrorYZ);
 
-	var Tmf2 = m4.multiply(Tfishbot, Tx);
-	var Tmf3 = m4.multiply(Tfishtopm, Tx);
-	var Tmf4 = m4.multiply(Tfishbotm, Tx);
+	var Tmf2 = m4.multiply(Tfishbot, Txm);
+	var Tmf3 = m4.multiply(Tfishtopm, Txm);
+	var Tmf4 = m4.multiply(Tfishbotm, Txm);
 
-	var fish = txFishQuarter(Tx, false).concat(txFishQuarter(Tmf2, true), txFishQuarter(Tmf3, true), txFishQuarter(Tmf4, false));
+	var fish = txFishQuarter(Txm, Txc, false).concat(
+			txFishQuarter(Tmf2, Txc, true), 
+			txFishQuarter(Tmf3, Txc, true), 
+			txFishQuarter(Tmf4, Txc, false));
 	return fish;
 }
 
@@ -136,27 +147,31 @@ function setupFishQuarter(){
 	fishTriangles.push(new Triangle(v1, v2, v3));
 }
 
-function txFishQuarter(Tx, switchV){
+function txFishQuarter(Txm, Txc, switchV){
 	//transform points
 	var txPoints = [];
 	var color = [0, 155, 155];
 	for(var i = 0; i < fishTriangles.length; i++){
 		var tri = new Triangle(
-				m4.transformPoint(Tx, fishTriangles[i].v1),
-				m4.transformPoint(Tx, fishTriangles[i].v2),
-				m4.transformPoint(Tx, fishTriangles[i].v3),
+				m4.transformPoint(Txm, fishTriangles[i].v1),
+				m4.transformPoint(Txm, fishTriangles[i].v2),
+				m4.transformPoint(Txm, fishTriangles[i].v3),
 				color
 		);
 		if(switchV){
 			tri.switchV();
 		}
+		tri.normal = tri.getNormal();
+		
+		tri.v1 = m4.transformPoint(Txc, tri.v1);
+		tri.v2 = m4.transformPoint(Txc, tri.v2);
+		tri.v3 = m4.transformPoint(Txc, tri.v3);
+		tri.calcCentroid();
+		
 		txPoints.push(tri);
 	}
 
 	return txPoints;
-	/*for(var j = 0; j < txPoints.length; j++){
-		txPoints[j].draw(context);
-	}*/
 }
 
 
@@ -224,14 +239,14 @@ function draw() {
 
 	//drawAxes(Tcpv);
 	//drawPyramid('rgb(0, 0, 0', Tcpv);
-	var pyr = getTxPyramid(Tcpv);
-	var fish = getFullFish(Tmcpv);
+	var pyr = getTxPyramid(m4.identity(), Tcpv);
+	var fish = getFullFish(Tspin, Tcpv);
 	var light = twgl.v3.normalize([1, 3, 2]);
 	//var light = twgl.v3.normalize([1, 1, 1]);
 	//var light = [1, 3, 2];
 	//var light = m4.transformPoint(Tcpv, twgl.v3.normalize([1, 3, 2]));
 	
-	var models = new ModelPieces(fish.concat(pyr), light);
+	var models = new ModelPieces(fish.concat(pyr), light, Tcpv);
 	//var models = new ModelPieces(fish, light);
 	models.drawPainter(context);
 	spinBy = (spinBy + 1) % 200;

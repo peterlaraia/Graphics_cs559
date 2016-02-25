@@ -42,6 +42,12 @@ var Triangle = function(v1, v2, v3, color){
 		this.color[1] *= shader;
 		this.color[2] *= shader;
 	};
+	
+	this.calcCentroid = function(){
+		this.centroid = [(this.v1[0] + this.v2[0] + this.v3[0])/3, 
+		                 (this.v1[1] + this.v2[1] + this.v3[1])/3, 
+		                 (this.v1[2] + this.v2[2] + this.v3[2])/3];
+	}
 
 	this.toString = function() {
 		console.log("v1: " + this.v1[0] + ", " + this.v1[1] + ", " + this.v1[2]);

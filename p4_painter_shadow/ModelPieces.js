@@ -11,13 +11,16 @@ var ModelPieces = function(triangles, light) {
 		
 		for(var i = 0; i < this.triangles.length; i++){
 			var tri = this.triangles[i];
-			var n = tri.getNormal();
+			/*tri.v1 = twgl.m4.transformPoint(this.cpvTx, tri.v1);
+			tri.v2 = twgl.m4.transformPoint(this.cpvTx, tri.v2);
+			tri.v3 = twgl.m4.transformPoint(this.cpvTx, tri.v3);*/
+			//var n = tri.getNormal();
 			//tri.toString();
 			//console.log(tri.centroid[2]);
 			
-			tri.shade(n, this.light);
+			tri.shade(tri.normal, this.light);
 			if(normals.checked){
-				tri.drawNormal(n, context);
+				tri.drawNormal(tri.normal, context);
 			}
 			tri.draw(context);
 		}
