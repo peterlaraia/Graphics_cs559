@@ -1,0 +1,48 @@
+precision highp float;
+uniform float time;
+attribute vec3 position;
+attribute vec3 normal;
+uniform mat3 normalMatrix;
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+varying vec3 fNormal;
+varying vec3 fPosition;
+varying float redWeight;
+varying vec3 mPos;
+varying vec3 g_ambient;
+
+const float radius = 0.05;
+
+void main()
+{
+  g_ambient = vec3(0.2, 0.2, 0.2);
+  fNormal = normalize(normalMatrix * normal);
+ //vec4 pos = vec4(1.0, (1.0 + sin(time*10.0)), 1.0, 1.0) * 
+  vec3 resize = vec3(position.x, position.y*(1.0 + sin(time*10.0)), position.z);
+  vec4 pos = modelViewMatrix * vec4(resize, 1.0);
+  //pos = pos * vec4(1.0, (1.0 + sin(time*10.0)), 1.0, 1.0);
+  fPosition = pos.xyz;
+  mPos = position;
+  
+  float lateralX = sin(time*15.0);
+  float myX = position.x - lateralX;
+  
+  if(sqrt((myX*myX) + (position.y*position.y)) < radius){
+    g_ambient = vec3(0.0, 0.2, 1.0);
+  } 
+  
+  /*
+  float baldX = 0.4*sin(time*50.0);
+  float baldZ = 0.4*cos(time*50.0);
+  myX = position.x - baldX;
+  float myZ = position.z - baldZ;
+  
+  if(position.y > 0.5 && position.y < 1.0 &&
+  sqrt((myX*myX) + (myZ*myZ)) < radius*2.0){
+    g_ambient = vec3(0.0, 1.0, 0.0);
+  }
+  */
+  
+  redWeight = resize.y*2.0;
+  gl_Position = projectionMatrix * pos;
+}

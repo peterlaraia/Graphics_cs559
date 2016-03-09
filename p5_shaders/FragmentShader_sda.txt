@@ -1,0 +1,64 @@
+precision highp float;
+uniform float time;
+uniform vec2 resolution;
+varying vec3 fPosition;
+varying vec3 fNormal;
+varying float redWeight;
+varying vec3 mPos;
+varying vec3 g_ambient;
+
+//color presets
+vec3 g_diffuse = vec3(1.0, 0.0, 0.0);
+//vec3 g_ambient = vec3(0.4, 0.4, 0.4);
+vec3 g_specular = vec3(1.0, 1.0, 1.0);
+
+//specular falloff. 
+float s = 25.0;
+
+vec3 camera = vec3(0.0, 0.0, 1.0);
+
+
+vec3 diffuse(in vec3 toLight)
+{
+  
+  float diffuseWeight =  max( dot(toLight, fNormal) , 0.0) ;
+  return g_ambient + diffuseWeight * g_diffuse *-redWeight;
+}
+
+vec3 specular(in vec3 toLight){
+  vec3 reflection = reflect(-toLight, fNormal);
+  float specWeight = pow(max(dot(reflection, normalize(camera)), 0.0), s);
+  return g_specular*specWeight;
+  
+}
+
+void main()
+{
+  
+  vec3 toLight = vec3(0.0, -1.0, 0.0 );
+  vec3 spinLight = vec3(sin(time*20.0), 0.0, cos(time*20.0));
+  vec3 spotlight;
+  if(int(mod(time*20.0, 2.0)) == 0) {
+    spotlight = vec3(0.0, 0.0, 0.0);
+  } else {
+    spotlight = vec3(1.0, 1.0, 0.5);
+  }
+  gl_FragColor = vec4(diffuse(toLight) + specular(spinLight) + specular(spotlight), 1.0);
+  
+  /*
+  vec2 gtWindow1 = vec2(.3*sin(time*20.0), .3*cos(time*20.0));
+  vec2 ltWindow1 = vec2(gtWindow1.x-0.1, gtWindow1.y-0.1);
+  if(fPosition.y < gtWindow1.y && fPosition.y > ltWindow1.y && 
+  fPosition.x < gtWindow1.x && fPosition.x > ltWindow1.x) 
+  discard;
+  
+  vec2 gtWindow2 = vec2(0.05, sin(time*60.0));
+  vec2 ltWindow2 = vec2(gtWindow2.x-0.1, gtWindow2.y-0.1);
+  //if(mPos.y < gtWindow2.y && mPos.y > ltWindow2.y && mPos.x < gtWindow2.x && mPos.x > ltWindow2.x) discard;
+  if(fPosition.y < gtWindow2.y && fPosition.y > ltWindow2.y && 
+  fPosition.x < gtWindow2.x && fPosition.x > ltWindow2.x) 
+  discard;
+  */
+  
+}
+
